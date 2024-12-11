@@ -1,12 +1,37 @@
 package database
 
 import (
-  "gorm.io/driver/sqlite" 
-  "gorm.io/gorm"
+	"log"
+
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+type DB struct {
+	Instance *gorm.DB
+}
 
+type DBLogs struct {
+	ID                   uint   `gorm:"primaryKey;autoIncrement"`
+	Date                 string
+	StorageBucketProvider string
+	UserIP               string
+	RegisteredUser       bool
+}
 
-func ConnectDB(){}
+var DBInstance *DB
 
+func Connect() {
+	db, err := gorm.Open(sqlite.Open("app_database.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	err = db.AutoMigrate(&DBLogs{})
+	if err != nil {
+		log.Fatalf("Failed to migrate database schema: %v", err)
+	}
+
+	log.Println("Successfully connected to SQLite database")
+	DBInstance = &DB{Instance: db}
+}

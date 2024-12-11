@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+
 // READ ENV DETAILS
 func LoadStorageBucketDetails(key string) (string, error){
 	bucketKey , ok := os.LookupEnv(key)
