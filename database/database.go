@@ -17,6 +17,9 @@ type DBLogs struct {
 	StorageBucketProvider string
 	UserIP               string
 	RegisteredUser       bool
+	CreatedAt string
+	Status bool
+	Size uint
 }
 
 var DBInstance *DB
