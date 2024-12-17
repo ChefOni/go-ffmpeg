@@ -3,12 +3,44 @@ package utils
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api"
 	_ "github.com/cloudinary/cloudinary-go/v2/api/admin"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/gofiber/fiber/v2"
 )
+
+func CheckFileSize(filePath string, maxSize uint) bool {
+	file, err := os.Stat(filePath)
+	if err != nil {
+		log.Printf("Error getting file info: %v", err)
+		return false
+	}
+
+	fileSize := file.Size()
+
+	if uint(fileSize) > maxSize {
+		log.Printf("File size (%d bytes) exceeds the maximum allowed size (%d bytes)", fileSize, maxSize)
+		return false
+	}
+
+	log.Printf("File size (%d bytes) is within the allowed limit (%d bytes)", fileSize, maxSize)
+	return true
+}
+
+// Compress video using ffmpeg
+func CompressVideo(inputFilePath, outputFilePath string) error {
+	cmd := exec.Command("ffmpeg", "-i", inputFilePath, "-vcodec", "libx264", "-crf", "28", outputFilePath)
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	log.Println("Video successfully compressed")
+	return nil
+}
 
 func CloudinaryCredentials() (*cloudinary.Cloudinary, context.Context) {
     cld, _ := cloudinary.New()
@@ -30,28 +62,21 @@ func UploadImageToCloudinary(cld *cloudinary.Cloudinary, ctx context.Context) {
     fmt.Println("****2. Upload an image****\nDelivery URL:", resp.SecureURL)
 }
 
-// CHECK CONNECTIONS OF THE DIFFERENT STORAGE BUCKET
-func ConnectStorageBucket(){
-
+func SuccessResponse(data interface{}) *fiber.Map {
+	return &fiber.Map{
+		"status": true,
+		"data":   data,
+		"error":  nil,
+	}
 }
 
-// MAKE SURE THE HANDLER DOES NOT TKE MORE THAN THE REQUIRED VIDEO SIZE
-func CheckVideoSize(){}
-
-//USE FFMPEG TO COMPRESS THE VIDEO
-func CompressVideo(){}
-
-// UPLOAD TO AWS S3 BUCKET
-func UploadtoS3(){
-
+func ErrorResponse(data interface{}) *fiber.Map {
+	return &fiber.Map{
+		"status": false,
+		"data":   "",
+		"error":  true,
+	}
 }
-
-// UPLOAD TO CLOUDFLARE
-func UploadtoCloudFlare(){}
-
-
-//UPLOAD TO CLOUDINARY
-func UploadToCloudinary(){}
 
 
 

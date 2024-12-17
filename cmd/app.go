@@ -27,3 +27,4 @@ func (a *App) Start(address string) error {
 	a.logger.Println("Starting server on", address)
 	return a.router.Listen(address)
 }
+
